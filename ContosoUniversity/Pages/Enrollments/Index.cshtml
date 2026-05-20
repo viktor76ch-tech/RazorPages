@@ -2,47 +2,78 @@
 @model ContosoUniversity.Pages.Enrollments.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Enrollments";
 }
 
-<h1>Index</h1>
+<div class="index-tools">
+    <div class="index-left-side">
+        <h1>Enrollments</h1>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
+        <div class="create-button">
+            <a asp-page="Create" class="btn btn-primary">Create New</a>
+        </div>
+    </div>
+    <form asp-page="./Index" method="get">
+        <div>
+            <label for="SearchString">Поиск по курсам:</label>
+            <input type="text" name="SearchString" id="SearchString" value="@Model.CurrentFilter" />
+            <input type="submit" value="Search" class="btn btn-primary" />
+            <a asp-page="./Index">Сбросить</a>
+        </div>
+    </form>
+</div>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Enrollment[0].Grade)
+                @Html.DisplayNameFor(model => model.PLEnrollments[0].Grade)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Enrollment[0].Course)
+                <a asp-page="./Index" asp-route-sortOrder="@Model.CourseSort">@Html.DisplayNameFor(model => model.PLEnrollments[0].Course)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Enrollment[0].Student)
+                <a asp-page="./Index" asp-route-sortOrder="@Model.StudentSort">@Html.DisplayNameFor(model => model.PLEnrollments[0].Student)</a>
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Enrollment) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Grade)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Course.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Student.FullName)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.EnrollmentID">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.EnrollmentID">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.EnrollmentID">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.PLEnrollments)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Grade)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Course.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Student.FullName)
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.EnrollmentID">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.EnrollmentID">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.EnrollmentID">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+@{
+    string prevDisabled = Model.PLEnrollments.HasPreviousPage ? "" : "disabled";
+    string nextDisabled = Model.PLEnrollments.HasNextPage ? "" : "disabled";
+}
+<a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.PLEnrollments.PageIndex - 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       class="btn btn-primary @prevDisabled">
+    Prev
+</a>
+<a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.PLEnrollments.PageIndex + 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       class="btn btn-primary @nextDisabled">
+    Next
+</a>
