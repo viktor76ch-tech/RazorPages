@@ -27,11 +27,14 @@ namespace ContosoUniversity.Pages.Students
         public string CurrentFilter { get; set; }
         public string CurrentSort { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public int PageSize { get; set; } = 10;
+
         public PaginatedList<Student> PLStudents { get; set; }
 
         public IQueryable<Student> Students { get; set; } = default!;
 
-        public async Task OnGetAsync(string sortOrder, string searchString, int? pageIndex)
+        public async Task OnGetAsync(string sortOrder, string searchString, int? pageIndex, int? pageSize)
         {
             CurrentSort = sortOrder;
             NameSort = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
@@ -55,8 +58,11 @@ namespace ContosoUniversity.Pages.Students
             }
             //this.Students = await students.AsNoTracking().ToListAsync();
             this.Students = students;
-            int pageSize = configuration.GetValue("PageSize", 5);
-            this.PLStudents = await PaginatedList<Student>.CreateAsync(Students.AsNoTracking(),pageIndex?? 1,pageSize);
+            //int pageSize = configuration.GetValue("PageSize", 5);
+            int currentPageSize = pageSize ?? 10;
+            PageSize = currentPageSize;
+            this.PLStudents = await PaginatedList<Student>.CreateAsync(Students.AsNoTracking(),pageIndex?? 1, currentPageSize);
+
         }
         //public async Task OnGetAsync()
         //{

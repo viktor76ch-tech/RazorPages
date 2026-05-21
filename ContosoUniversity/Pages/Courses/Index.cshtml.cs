@@ -21,43 +21,34 @@ namespace ContosoUniversity.Pages.Courses
             this.configuration = configuration;
         }
 
-        // Свойства для сортировки
-        public string TitleSort { get; set; }      // для переключения сортировки по названию
-        public string CreditsSort { get; set; }    // для переключения сортировки по кредитам
-        public string CurrentFilter { get; set; }  // текущий поисковый запрос
-        public string CurrentSort { get; set; }    // текущий тип сортировки
+        public string TitleSort { get; set; }      
+        public string CreditsSort { get; set; }    
+        public string CurrentFilter { get; set; }  
+        public string CurrentSort { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public int PageSize { get; set; } = 10;
         public PaginatedList<Course> PLCourses { get; set; }
-        // public IQueryable<Course> Courses { get; set; } = default!; // можно удалить, если не используется в представлении
 
-        public async Task OnGetAsync(string sortOrder, string searchString, int? pageIndex)
+        public async Task OnGetAsync(string sortOrder, string searchString, int? pageIndex, int? pageSize)
         {
-            // 1. Запоминаем текущую сортировку
             CurrentSort = sortOrder;
-
-            // 2. Определяем параметры для ссылок (чтобы переключать направление)
-            //    Если сейчас сортировка по названию по убыванию, то следующая ссылка будет "title_asc"
             TitleSort = sortOrder == "title_desc" ? "title_asc" : "title_desc";
             CreditsSort = sortOrder == "credits_desc" ? "credits_asc" : "credits_desc";
-
-            // 3. Логика поиска (сохраняем запрос между страницами)
             if (searchString != null)
-                pageIndex = 1;            // новый поиск – сброс на первую страницу
+                pageIndex = 1;
             else
                 searchString = CurrentFilter;
 
             CurrentFilter = searchString;
 
-            // 4. Базовый запрос
             IQueryable<Course> courses = _context.Courses;
 
-            // 5. Фильтрация по названию курса
             if (!string.IsNullOrEmpty(searchString))
             {
                 courses = courses.Where(c => c.Title.Contains(searchString));
             }
 
-            // 6. Сортировка
             switch (sortOrder)
             {
                 case "title_desc":
@@ -72,17 +63,17 @@ namespace ContosoUniversity.Pages.Courses
                 case "credits_asc":
                     courses = courses.OrderBy(c => c.Credits);
                     break;
-                default:    // по умолчанию сортировка по названию (возрастание)
+                default:    
                     courses = courses.OrderBy(c => c.Title);
                     break;
             }
 
-            // 7. Пагинация
-            int pageSize = configuration.GetValue("PageSize", 5);
+            int currentPageSize = pageSize ?? 10;
+            PageSize = currentPageSize;
             PLCourses = await PaginatedList<Course>.CreateAsync(
                 courses.AsNoTracking(),
                 pageIndex ?? 1,
-                pageSize
+                currentPageSize
             );
         }
     }

@@ -25,10 +25,12 @@ namespace ContosoUniversity.Pages.Enrollments
         public string CurrentFilter { get; set; }
         public string CurrentSort { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public int PageSize { get; set; } = 15;
         public PaginatedList<Enrollment> PLEnrollments { get; set; }
         public IQueryable<Enrollment> Enrollments { get;set; } = default!;
 
-        public async Task OnGetAsync(string sortOrder, string searchString, int? pageIndex)
+        public async Task OnGetAsync(string sortOrder, string searchString, int? pageIndex, int? pageSize)
         {
             CurrentSort = sortOrder;
             StudentSort = sortOrder == "student_desc" ? "student_asc" : "student_desc";
@@ -67,11 +69,12 @@ namespace ContosoUniversity.Pages.Enrollments
                     break;
             }
 
-            int pageSize = configuration.GetValue("PageSize", 5);
+            int currentPageSize = pageSize ?? 10;
+            PageSize = currentPageSize;
             PLEnrollments = await PaginatedList<Enrollment>.CreateAsync(
                 enrollments.AsNoTracking(),
                 pageIndex ?? 1,
-                pageSize
+                currentPageSize
             );
         }
         //public async Task OnGetAsync()

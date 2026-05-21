@@ -14,6 +14,15 @@
         </div>
     </div>
     <form asp-page="./Index" method="get">
+        <label for="items-per-page">Количество записей на странице</label>
+        <select name="pageSize" id="pageSize" onchange="this.form.submit()">
+            @foreach (var size in new[] { 3, 5, 10, 20 })
+            {
+                <option value="@size" selected="@(Model.PageSize == size)">@size</option>
+            }
+        </select>
+    </form>
+    <form asp-page="./Index" method="get">
         <div>
             <label for="SearchString">Поиск по курсам:</label>
             <input type="text" name="SearchString" id="SearchString" value="@Model.CurrentFilter" />
@@ -29,10 +38,14 @@
                 @Html.DisplayNameFor(model => model.PLEnrollments[0].Grade)
             </th>
             <th>
-                <a asp-page="./Index" asp-route-sortOrder="@Model.CourseSort">@Html.DisplayNameFor(model => model.PLEnrollments[0].Course)</a>
+                <a asp-page="./Index" asp-route-sortOrder="@Model.CourseSort"
+                   asp-route-pageSize="@Model.PageSize">
+                   @Html.DisplayNameFor(model => model.PLEnrollments[0].Course)</a>
             </th>
             <th>
-                <a asp-page="./Index" asp-route-sortOrder="@Model.StudentSort">@Html.DisplayNameFor(model => model.PLEnrollments[0].Student)</a>
+                <a asp-page="./Index" asp-route-sortOrder="@Model.StudentSort"
+                   asp-route-pageSize="@Model.PageSize">
+                   @Html.DisplayNameFor(model => model.PLEnrollments[0].Student)</a>
             </th>
             <th></th>
         </tr>
@@ -67,6 +80,7 @@
        asp-route-sortOrder="@Model.CurrentSort"
        asp-route-pageIndex="@(Model.PLEnrollments.PageIndex - 1)"
        asp-route-currentFilter="@Model.CurrentFilter"
+       asp-route-pageSize="@Model.PageSize"
        class="btn btn-primary @prevDisabled">
     Prev
 </a>
@@ -74,6 +88,7 @@
        asp-route-sortOrder="@Model.CurrentSort"
        asp-route-pageIndex="@(Model.PLEnrollments.PageIndex + 1)"
        asp-route-currentFilter="@Model.CurrentFilter"
+       asp-route-pageSize="@Model.PageSize"
        class="btn btn-primary @nextDisabled">
     Next
 </a>
